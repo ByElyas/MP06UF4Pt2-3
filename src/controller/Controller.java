@@ -57,14 +57,13 @@ public class Controller {
         modelo = m;
 
         //COSA DE CARREGAR COSES DEL JAVABEAN ESTE, QUE ANTES ESTAVEN AL MODEL
+
         Pr2i3 p = new Pr2i3();
         try {
+                    //Fer que el bean es conecti a la bd
             p.setPropsDB("bd.properties");
-        } catch (PropertyVetoException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-        }
 
-        try {
+            //CREAR LES TAULES PER DEFECTE A LA BD
             p.setQuery_db("CREATE TABLE IF NOT EXISTS `vehicle` (\n"
                     + "  `_1_numero_Vehicle` int NOT NULL,\n"
                     + "  `_2_model_Vehicle` text NOT NULL,\n"
@@ -73,18 +72,19 @@ public class Controller {
                     + "  PRIMARY KEY (`_1_numero_Vehicle`)\n"
                     + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
             p.setQuery_db("CREATE TABLE IF NOT EXISTS `conductor` (\n"
-                + "  `_1_id_conductor` int NOT NULL,\n"
-                + "  `_2_cognom_Conductor` text NOT NULL,\n"
-                + "  `_3_edat_Conductor` int NOT NULL,\n"
-                + "  `_4_nom_Conductor` text NOT NULL,\n"
-                + "  `_5_vehicle_Conductor` int NOT NULL,\n"
-                + "  PRIMARY KEY (`_1_id_conductor`),\n"
-                + "  KEY `fk_conductor_vehicle` (`_5_vehicle_Conductor`),\n"
-                + "  CONSTRAINT `fk_conductor_vehicle` FOREIGN KEY (`_5_vehicle_Conductor`) REFERENCES `vehicle` (`_1_numero_Vehicle`)\n"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+                    + "  `_1_id_conductor` int NOT NULL,\n"
+                    + "  `_2_cognom_Conductor` text NOT NULL,\n"
+                    + "  `_3_edat_Conductor` int NOT NULL,\n"
+                    + "  `_4_nom_Conductor` text NOT NULL,\n"
+                    + "  `_5_vehicle_Conductor` int NOT NULL,\n"
+                    + "  PRIMARY KEY (`_1_id_conductor`),\n"
+                    + "  KEY `fk_conductor_vehicle` (`_5_vehicle_Conductor`),\n"
+                    + "  CONSTRAINT `fk_conductor_vehicle` FOREIGN KEY (`_5_vehicle_Conductor`) REFERENCES `vehicle` (`_1_numero_Vehicle`)\n"
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
         } catch (PropertyVetoException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
+
 
         controlador();
 
@@ -226,6 +226,7 @@ public class Controller {
 
     private void carregarBD() {
 
+        //Plenar les collections per tal de que es mostri a la taula
         modelo.poblarTaula();
         carregarTaulaVehicleActual();
         carregarTaulaConductorActual();

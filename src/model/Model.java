@@ -33,17 +33,17 @@ public class Model {
     private String bdDriver;
     
 
-//    public void carregaVariables() throws FileNotFoundException, IOException {
-//        String fitxerPr = "bd.properties";
-//        Properties props = new Properties();
-//
-//        props.load(new FileInputStream(fitxerPr));
-//
-//        userBD = props.getProperty("user");
-//        passwordUserBD = props.getProperty("passwordUser");
-//        urlBD = props.getProperty("url");
-//        bdDriver = props.getProperty("driver");
-//    }
+    public void carregaVariables() throws FileNotFoundException, IOException {
+        String fitxerPr = "bd.properties";
+        Properties props = new Properties();
+
+        props.load(new FileInputStream(fitxerPr));
+
+        userBD = props.getProperty("user");
+        passwordUserBD = props.getProperty("passwordUser");
+        urlBD = props.getProperty("url");
+        bdDriver = props.getProperty("driver");
+    }
 
     public Model() {
 //        try {
@@ -198,6 +198,9 @@ public class Model {
         dataOrdConductor.clear();
     }
 
+    
+ 
+    
     public void eliminarVehicleBD(Vehicle v) {
         try {
             Connection con = this.getConnection();
