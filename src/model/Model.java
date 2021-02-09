@@ -26,24 +26,25 @@ import model.Conductor;
  * @author eliesfatsini
  */
 public class Model {
-
-    private String urlBD;
-    private String userBD;
-    private String passwordUserBD;
-    private String bdDriver;
+//
+//    private String urlBD;
+//    private String userBD;
+//    private String passwordUserBD;
+//    private String bdDriver;
     
+    Pr2i3 p = new Pr2i3();
 
-    public void carregaVariables() throws FileNotFoundException, IOException {
-        String fitxerPr = "bd.properties";
-        Properties props = new Properties();
-
-        props.load(new FileInputStream(fitxerPr));
-
-        userBD = props.getProperty("user");
-        passwordUserBD = props.getProperty("passwordUser");
-        urlBD = props.getProperty("url");
-        bdDriver = props.getProperty("driver");
-    }
+//    public void carregaVariables() throws FileNotFoundException, IOException {
+//        String fitxerPr = "bd.properties";
+//        Properties props = new Properties();
+//
+//        props.load(new FileInputStream(fitxerPr));
+//
+//        userBD = props.getProperty("user");
+//        passwordUserBD = props.getProperty("passwordUser");
+//        urlBD = props.getProperty("url");
+//        bdDriver = props.getProperty("driver");
+//    }
 
     public Model() {
 //        try {
@@ -60,25 +61,22 @@ public class Model {
      */
     
     
-    public Connection getConnection() throws SQLException {
-//        Pr2i3 p = new Pr2i3();          
-//
-//        try {
-//            p.setPropsDB("bd.properties");
-//        } catch (PropertyVetoException ex) {
-//            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-     
-        Connection con;
-        con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-        return con;
-     
-    }
+//    public Connection getConnection() throws SQLException {
+////        Pr2i3 p = new Pr2i3();          
+////
+////        try {
+////            p.setPropsDB("bd.properties");
+////        } catch (PropertyVetoException ex) {
+////            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+////        }     
 
-    public void closeConnection() throws SQLException {
-        Connection con = this.getConnection();
-        con.close();
-    }
+//     
+//    }
+//
+//    public void closeConnection() throws SQLException {
+//        Connection con = this.getConnection();
+//        con.close();
+//    }
 
     //Vehciles
     private Collection<Vehicle> data = new TreeSet<>();
@@ -104,7 +102,7 @@ public class Model {
             this.buidarCol();
 
             //COSA DE VEHICLE
-            Statement sta = this.getConnection().createStatement();
+            Statement sta = this.getConnection().createStatement();            
             ResultSet result = sta.executeQuery("SELECT * FROM vehicle;");
 
             int numV;

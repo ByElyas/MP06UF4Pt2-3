@@ -60,7 +60,7 @@ public class Controller {
 
         Pr2i3 p = new Pr2i3();
         try {
-                    //Fer que el bean es conecti a la bd
+            //Fer que el bean es conecti a la bd
             p.setPropsDB("bd.properties");
 
             //CREAR LES TAULES PER DEFECTE A LA BD
