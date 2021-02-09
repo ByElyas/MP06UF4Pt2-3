@@ -8,6 +8,8 @@ package model;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import elsmeusbeans.*;
+import java.beans.PropertyVetoException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,33 +31,27 @@ public class Model {
     private String userBD;
     private String passwordUserBD;
     private String bdDriver;
+    
 
-    public void carregaVariables() throws FileNotFoundException, IOException {
-        String fitxerPr = "bd.properties";
-        Properties props = new Properties();
-
-        props.load(new FileInputStream(fitxerPr));
-
-        userBD = props.getProperty("user");
-        passwordUserBD = props.getProperty("passwordUser");
-        urlBD = props.getProperty("url");
-        bdDriver = props.getProperty("driver");
-    }
+//    public void carregaVariables() throws FileNotFoundException, IOException {
+//        String fitxerPr = "bd.properties";
+//        Properties props = new Properties();
+//
+//        props.load(new FileInputStream(fitxerPr));
+//
+//        userBD = props.getProperty("user");
+//        passwordUserBD = props.getProperty("passwordUser");
+//        urlBD = props.getProperty("url");
+//        bdDriver = props.getProperty("driver");
+//    }
 
     public Model() {
-        try {
-            carregaVariables();
-        } catch (Exception ex) {
-            System.out.println("Algo no ha anat bè al carregar les variables de la db");
-        }
+//        try {
+//            carregaVariables();
+//        } catch (Exception ex) {
+//            System.out.println("Algo no ha anat bè al carregar les variables de la db");
+//        }
 
-        try {
-            crearEsquemaBD();
-        } catch (SQLSyntaxErrorException ex) {
-            System.out.println("Error de sintaxi a la creació de les taules. Contactar el programador");           
-        } catch (SQLException exd) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, exd);
-        }
     }
 
     /**
@@ -64,42 +60,19 @@ public class Model {
      */
     
     
-    // CREACIÓ DE LES TAULES A LA BD AMB AQUEST METODE QUE S'EXECUTA AL EXECUTARSE EL Model
-    // El "DROP TABLE IF EXIST" està comentat ja que si no cada vegada que iniciem el programa es borra tot el que hi ha
-    // en aquestes taules a la bd
-    public void crearEsquemaBD() throws SQLException {
-        Statement sta = this.getConnection().createStatement();
-        
-//        sta.executeUpdate("SET FOREIGN_KEY_CHECKS=0;");
-//        sta.executeUpdate("DROP TABLE IF EXISTS `vehicle`;");
-//        sta.executeUpdate("SET FOREIGN_KEY_CHECKS=1;");
-        sta.executeUpdate("CREATE TABLE IF NOT EXISTS `vehicle` (\n"
-                + "  `_1_numero_Vehicle` int NOT NULL,\n"
-                + "  `_2_model_Vehicle` text NOT NULL,\n"
-                + "  `_3_any_Vehicle` int NOT NULL,\n"
-                + "  `_4_marca_Vehicle` text NOT NULL,\n"
-                + "  PRIMARY KEY (`_1_numero_Vehicle`)\n"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
-
-//        sta.executeUpdate("DROP TABLE IF EXISTS `conductor`;");
-        sta.executeUpdate("CREATE TABLE IF NOT EXISTS `conductor` (\n"
-                + "  `_1_id_conductor` int NOT NULL,\n"
-                + "  `_2_cognom_Conductor` text NOT NULL,\n"
-                + "  `_3_edat_Conductor` int NOT NULL,\n"
-                + "  `_4_nom_Conductor` text NOT NULL,\n"
-                + "  `_5_vehicle_Conductor` int NOT NULL,\n"
-                + "  PRIMARY KEY (`_1_id_conductor`),\n"
-                + "  KEY `fk_conductor_vehicle` (`_5_vehicle_Conductor`),\n"
-                + "  CONSTRAINT `fk_conductor_vehicle` FOREIGN KEY (`_5_vehicle_Conductor`) REFERENCES `vehicle` (`_1_numero_Vehicle`)\n"
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
-
-    }
-
     public Connection getConnection() throws SQLException {
+//        Pr2i3 p = new Pr2i3();          
+//
+//        try {
+//            p.setPropsDB("bd.properties");
+//        } catch (PropertyVetoException ex) {
+//            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+     
         Connection con;
         con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
         return con;
-
+     
     }
 
     public void closeConnection() throws SQLException {
@@ -123,6 +96,7 @@ public class Model {
     public static <T> void insertar(T a, Collection<T> col) {
         col.add(a);
     }
+
 
     public void poblarTaula() {
         try {
@@ -173,18 +147,7 @@ public class Model {
         Vehicle ve = new Vehicle(marca, model, any, numero);
         Model.insertar(ve, data);
         Model.insertar(ve, dataOrd);
-//        Connection conV = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-//        String query = " INSERT INTO vehicle VALUES (?, ?, ?, ?) ";
-//        
-//        PreparedStatement preparedStmt = conV.prepareStatement(query);
-//        preparedStmt.setInt(1, numero);
-//        preparedStmt.setString(2, model);
-//        preparedStmt.setInt(3, any);
-//        preparedStmt.setString(4, marca);
-//        
-//        preparedStmt.execute();
-//        
-//        conV.close();
+
     }
 
     public void insertarVehicleBD(String marca, String model, int any, int numero) throws SQLException {

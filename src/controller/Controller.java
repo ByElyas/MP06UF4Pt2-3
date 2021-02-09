@@ -5,12 +5,14 @@
  */
 package controller;
 
+import elsmeusbeans.Pr2i3;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,7 +43,6 @@ public class Controller {
     private static Model modelo;
     private static View view;
 
-
 //    private int comboboxActualCond = 0;
     private int colVehicleActual = 0;
     private int colConductorActual = 0;
@@ -50,14 +51,43 @@ public class Controller {
     private TableColumn tc;
     private TableColumn tcC;
 
-   
     public Controller(Model m, View v) throws SQLException, FileNotFoundException, IOException {
 
         view = v;
         modelo = m;
 
+        //COSA DE CARREGAR COSES DEL JAVABEAN ESTE, QUE ANTES ESTAVEN AL MODEL
+        Pr2i3 p = new Pr2i3();
+        try {
+            p.setPropsDB("bd.properties");
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        try {
+            p.setQuery_db("CREATE TABLE IF NOT EXISTS `vehicle` (\n"
+                    + "  `_1_numero_Vehicle` int NOT NULL,\n"
+                    + "  `_2_model_Vehicle` text NOT NULL,\n"
+                    + "  `_3_any_Vehicle` int NOT NULL,\n"
+                    + "  `_4_marca_Vehicle` text NOT NULL,\n"
+                    + "  PRIMARY KEY (`_1_numero_Vehicle`)\n"
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            p.setQuery_db("CREATE TABLE IF NOT EXISTS `conductor` (\n"
+                + "  `_1_id_conductor` int NOT NULL,\n"
+                + "  `_2_cognom_Conductor` text NOT NULL,\n"
+                + "  `_3_edat_Conductor` int NOT NULL,\n"
+                + "  `_4_nom_Conductor` text NOT NULL,\n"
+                + "  `_5_vehicle_Conductor` int NOT NULL,\n"
+                + "  PRIMARY KEY (`_1_id_conductor`),\n"
+                + "  KEY `fk_conductor_vehicle` (`_5_vehicle_Conductor`),\n"
+                + "  CONSTRAINT `fk_conductor_vehicle` FOREIGN KEY (`_5_vehicle_Conductor`) REFERENCES `vehicle` (`_1_numero_Vehicle`)\n"
+                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         controlador();
+
     }
 
     private void defecteText() {
@@ -75,7 +105,6 @@ public class Controller {
         view.getAfegirModelText().setText("Model Placeholder");
         view.getAfegirAnyText().setText("1900");
         view.getAfegirNumeroText().setText("99");
-
 
         //FILTRE
         view.getFiltrarVehiclesCombobox().removeAllItems();
@@ -156,7 +185,6 @@ public class Controller {
 //        Combobox per a elegir vehicle per al conductor 
         Utils.<Vehicle>loadCombo(modelo.getData(), view.getNumVehicleConductorCombobox());
     }
-
 
     public void carregarTaulaVehicle() {
         tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true);
@@ -313,7 +341,7 @@ public class Controller {
             } else {
                 //Exemple de validesa utilitzant expressions regulars
                 if (view.getAfegirNumeroText().getText().matches("\\d{2}") || view.getAfegirNumeroText().getText().matches("\\d{1}")) {
-                   
+
                     try {
                         if (Integer.parseInt(view.getAfegirAnyText().getText()) < 1900
                                 || Integer.parseInt(view.getAfegirAnyText().getText()) > 2030) {
@@ -549,8 +577,7 @@ public class Controller {
             }
         }
         );
-        
-        
+
         //COSA DE ACTUALITZAR LA BD SI CANVIEM ALGO DIRECTAMENT A LA TAULA OLE OLE
         KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
         view.getJTaulaVehicles().getModel().addTableModelListener(new TableModelListener() {
@@ -559,7 +586,7 @@ public class Controller {
                 // TODO fer cosa de que canvii a la BD o algo no se
                 System.out.println("holaa");
             }
-            
+
         });
 
 //        view.getNumVehicleConductorCombobox().addItemListener(e -> {
@@ -575,7 +602,6 @@ public class Controller {
                 }
             }
         });
-
 
     }
 
