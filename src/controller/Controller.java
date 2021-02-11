@@ -56,36 +56,6 @@ public class Controller {
         view = v;
         modelo = m;
 
-        //COSA DE CARREGAR COSES DEL JAVABEAN ESTE, QUE ANTES ESTAVEN AL MODEL
-
-        Pr2i3 p = new Pr2i3();
-        try {
-            //Fer que el bean es conecti a la bd
-            p.setPropsDB("bd.properties");
-
-            //CREAR LES TAULES PER DEFECTE A LA BD
-            p.setQuery_db("CREATE TABLE IF NOT EXISTS `vehicle` (\n"
-                    + "  `_1_numero_Vehicle` int NOT NULL,\n"
-                    + "  `_2_model_Vehicle` text NOT NULL,\n"
-                    + "  `_3_any_Vehicle` int NOT NULL,\n"
-                    + "  `_4_marca_Vehicle` text NOT NULL,\n"
-                    + "  PRIMARY KEY (`_1_numero_Vehicle`)\n"
-                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
-            p.setQuery_db("CREATE TABLE IF NOT EXISTS `conductor` (\n"
-                    + "  `_1_id_conductor` int NOT NULL,\n"
-                    + "  `_2_cognom_Conductor` text NOT NULL,\n"
-                    + "  `_3_edat_Conductor` int NOT NULL,\n"
-                    + "  `_4_nom_Conductor` text NOT NULL,\n"
-                    + "  `_5_vehicle_Conductor` int NOT NULL,\n"
-                    + "  PRIMARY KEY (`_1_id_conductor`),\n"
-                    + "  KEY `fk_conductor_vehicle` (`_5_vehicle_Conductor`),\n"
-                    + "  CONSTRAINT `fk_conductor_vehicle` FOREIGN KEY (`_5_vehicle_Conductor`) REFERENCES `vehicle` (`_1_numero_Vehicle`)\n"
-                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
-        } catch (PropertyVetoException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-
         controlador();
 
     }
@@ -375,14 +345,6 @@ public class Controller {
         //eliminarVehicle
         view.getEliminarVehicleButton().addActionListener(e -> {
             if (filaSel != -1) {
-                Connection conE = null;
-                try {
-                    conE = modelo.getConnection();
-                } catch (SQLException ex) {
-                }
-                try {
-
-                    conE.setAutoCommit(false);
                     TableColumnModel tcm = view.getJTaulaVehicles().getColumnModel();
                     tcm.addColumn(tc);
                     Vehicle veh = (Vehicle) view.getJTaulaVehicles().getValueAt(filaSel, tcm.getColumnCount() - 1);
@@ -399,21 +361,13 @@ public class Controller {
                         }
                     }
                     modelo.eliminarVehicleBD(veh);
-                    conE.commit();
                     actualitzarComboboxCond();
                     carregarBD();
                     carregarTaulaVehicleActual();
                     carregarTaulaConductorActual();
 
                     filaSel = -1;
-                } catch (SQLException ex) {
-                    System.out.println("Algo no ha anat bè al borrar registres. Tirant atras el commit...");
-                    try {
-                        conE.rollback();
-                    } catch (SQLException ex1) {
-                        System.out.println("Ha fallat el rollback, S'ACABA EL MON CORREU NOIS CORREU");
-                    }
-                }
+
             } else {
                 System.out.println(filaSel);
                 JOptionPane.showMessageDialog(view, "Has de seleccionar una fila per a borrarla!");
@@ -480,11 +434,12 @@ public class Controller {
                 TableColumnModel tcm = view.getJTaulaConductor().getColumnModel();
                 tcm.addColumn(tc);
 //                        System.out.println(filaSel);  
-                Conductor cond = (Conductor) view.getJTaulaConductor().getValueAt(filaSelCond, tcm.getColumnCount() - 1);
+                
                 String cognom = view.getEditarCognomConductorText().getText();
                 int edat = Integer.parseInt(view.getEditarEdatConductorText().getText());
                 String nom = view.getEditarNomConductorText().getText();
-                modelo.editarConductorBD(nom, cognom, edat);
+                int id = Integer.parseInt(view.getEditarIdConductorText().getText());
+                modelo.editarConductorBD(nom, cognom, edat, id);
                 tcm.removeColumn(tc);
 
                 carregarTaulaConductorActual();
@@ -545,7 +500,7 @@ public class Controller {
 
         }
         );
-        //eliminarConductor
+//        eliminarConductor
         view.getEliminarConductorButton().addActionListener(e -> {
 //                    System.out.println(filaSel);
             if (filaSelCond != -1) {
@@ -593,16 +548,16 @@ public class Controller {
 //        view.getNumVehicleConductorCombobox().addItemListener(e -> {
 //            comboboxActualCond =;
 //        });
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    modelo.closeConnection();
-                } catch (SQLException ex) {
-                    Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
+//        Runtime.getRuntime().addShutdownHook(new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    modelo.closeConnection();
+//                } catch (SQLException ex) {
+//                    Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//        });
 
     }
 

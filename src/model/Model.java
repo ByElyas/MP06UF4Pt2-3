@@ -31,7 +31,7 @@ public class Model {
 //    private String userBD;
 //    private String passwordUserBD;
 //    private String bdDriver;
-    
+
     Pr2i3 p = new Pr2i3();
 
 //    public void carregaVariables() throws FileNotFoundException, IOException {
@@ -45,13 +45,33 @@ public class Model {
 //        urlBD = props.getProperty("url");
 //        bdDriver = props.getProperty("driver");
 //    }
-
     public Model() {
-//        try {
-//            carregaVariables();
-//        } catch (Exception ex) {
-//            System.out.println("Algo no ha anat bè al carregar les variables de la db");
-//        }
+        try {
+            //CONNECTAR EL BEAN A LA BD
+            p.setPropsDB("bd.properties");
+
+            //CREAR LES TAULES PER DEFECTE A LA BD
+            p.setQuery_db("CREATE TABLE IF NOT EXISTS `vehicle` (\n"
+                    + "  `_1_numero_Vehicle` int NOT NULL,\n"
+                    + "  `_2_model_Vehicle` text NOT NULL,\n"
+                    + "  `_3_any_Vehicle` int NOT NULL,\n"
+                    + "  `_4_marca_Vehicle` text NOT NULL,\n"
+                    + "  PRIMARY KEY (`_1_numero_Vehicle`)\n"
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+            p.setQuery_db("CREATE TABLE IF NOT EXISTS `conductor` (\n"
+                    + "  `_1_id_conductor` int NOT NULL,\n"
+                    + "  `_2_cognom_Conductor` text NOT NULL,\n"
+                    + "  `_3_edat_Conductor` int NOT NULL,\n"
+                    + "  `_4_nom_Conductor` text NOT NULL,\n"
+                    + "  `_5_vehicle_Conductor` int NOT NULL,\n"
+                    + "  PRIMARY KEY (`_1_id_conductor`),\n"
+                    + "  KEY `fk_conductor_vehicle` (`_5_vehicle_Conductor`),\n"
+                    + "  CONSTRAINT `fk_conductor_vehicle` FOREIGN KEY (`_5_vehicle_Conductor`) REFERENCES `vehicle` (`_1_numero_Vehicle`)\n"
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
@@ -59,8 +79,6 @@ public class Model {
      *
      * @return
      */
-    
-    
 //    public Connection getConnection() throws SQLException {
 ////        Pr2i3 p = new Pr2i3();          
 ////
@@ -69,7 +87,6 @@ public class Model {
 ////        } catch (PropertyVetoException ex) {
 ////            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
 ////        }     
-
 //     
 //    }
 //
@@ -77,7 +94,6 @@ public class Model {
 //        Connection con = this.getConnection();
 //        con.close();
 //    }
-
     //Vehciles
     private Collection<Vehicle> data = new TreeSet<>();
     private Collection<Vehicle> dataOrd = new TreeSet<>(new VehicleOrdenatMarca());
@@ -95,20 +111,26 @@ public class Model {
         col.add(a);
     }
 
-
     public void poblarTaula() {
         try {
             //COSA DE BASE DE DADES OLEEE
             this.buidarCol();
 
             //COSA DE VEHICLE
-            Statement sta = this.getConnection().createStatement();            
-            ResultSet result = sta.executeQuery("SELECT * FROM vehicle;");
+//            Statement sta = this.getConnection().createStatement();            
+//            ResultSet result = sta.executeQuery();
+            try {
+                p.setQuery_db("SELECT * FROM vehicle;");
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
             int numV;
             String modelV;
             int anyV;
             String marcaV;
+
+            ResultSet result = p.getRst();
 
             while (result.next()) {
                 numV = result.getInt("_1_numero_Vehicle");
@@ -119,14 +141,19 @@ public class Model {
             }
 
             //COSA DE CONDUCTOR
-            Statement stac = this.getConnection().createStatement();
-            ResultSet resultc = stac.executeQuery("SELECT * FROM conductor;");
+            try {
+                p.setQuery_db("SELECT * FROM conductor;");
+            } catch (PropertyVetoException ex) {
+                Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
             int idC;
             String cognomC;
             int edatC;
             String nomC;
             int vehicleC;
+
+            ResultSet resultc = p.getRst();
 
             while (resultc.next()) {
                 idC = resultc.getInt("_1_id_conductor");
@@ -150,36 +177,28 @@ public class Model {
 
     public void insertarVehicleBD(String marca, String model, int any, int numero) throws SQLException {
 
-//            Vehicle ve = new Vehicle(marca, model, any, numero);
-//        Model.insertar(ve, data);
-//        Model.insertar(ve, dataOrd);
-        Connection con = this.getConnection();
-        String query = " INSERT INTO vehicle VALUES (?, ?, ?, ?) ";
+        try {
+            System.out.println("INSERT INTO vehicle VALUES (" + numero + ",'" + model + "'," + any + ",'" + marca + "');");
+            p.setUpdate_db("INSERT INTO vehicle VALUES (" + numero + ",'" + model + "'," + any + ",'" + marca + "') ");
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        PreparedStatement preparedStmt = con.prepareStatement(query);
-        preparedStmt.setInt(1, numero);
-        preparedStmt.setString(2, model);
-        preparedStmt.setInt(3, any);
-        preparedStmt.setString(4, marca);
+    }
 
-        preparedStmt.execute();
+    public void insertarConductor(String nom, String cognom, int edat, int id, int vehicle_Conductor) {
+        Conductor co = new Conductor(nom, cognom, edat, id, vehicle_Conductor);
+        Model.insertar(co, dataConductor);
+        Model.insertar(co, dataOrdConductor);
 
     }
 
     public void editarVehicleBD(String marca, String model, int any, int numero) {
+
+
         try {
-            String query = " UPDATE vehicle SET _2_model_Vehicle = ?, _3_any_Vehicle = ?, _4_marca_Vehicle = ? WHERE _1_numero_Vehicle = ?";
-
-            Connection con = this.getConnection();
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setInt(4, numero);
-            preparedStmt.setString(1, model);
-            preparedStmt.setInt(2, any);
-            preparedStmt.setString(3, marca);
-
-            preparedStmt.execute();
-
-        } catch (SQLException ex) {
+            p.setUpdate_db("UPDATE vehicle SET _2_model_Vehicle = '"+model+"', _3_any_Vehicle = "+any+", _4_marca_Vehicle = '"+marca+"' WHERE _1_numero_Vehicle = "+numero+";");
+        } catch (PropertyVetoException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -196,29 +215,19 @@ public class Model {
         dataOrdConductor.clear();
     }
 
-    
- 
-    
     public void eliminarVehicleBD(Vehicle v) {
         try {
-            Connection con = this.getConnection();
-            String query = " DELETE FROM vehicle WHERE _1_numero_Vehicle = ?";
 
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setInt(1, v.get1_numero_Vehicle());
-
-            preparedStmt.execute();
-
-            con.close();
-        } catch (SQLException ex) {
+            p.setUpdate_db("DELETE FROM vehicle WHERE _1_numero_Vehicle = " + v.get1_numero_Vehicle() + ";");
+        } catch (PropertyVetoException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-
 //    public void actualitzarVehicle(String marca, String model, int any, int numero) {
 //
 //    }
+
     class VehicleOrdenatMarca implements Comparator<Vehicle> {
 
         @Override
@@ -245,62 +254,27 @@ public class Model {
         return dataOrdConductor;
     }
 
-    public void insertarConductor(String nom, String cognom, int edat, int id, int vehicle_Conductor) {
-        Conductor co = new Conductor(nom, cognom, edat, id, vehicle_Conductor);
-        Model.insertar(co, dataConductor);
-        Model.insertar(co, dataOrdConductor);
-
-    }
-
     public void insertarConductorBD(String nom, String cognom, int edat, int id, int vehicle_Conductor) throws SQLException {
-        Connection con = this.getConnection();
-        String query = " INSERT INTO conductor VALUES (?, ?, ?, ?, ?) ";
-
-        PreparedStatement preparedStmt;
-
-        preparedStmt = con.prepareStatement(query);
-
-        preparedStmt.setInt(1, id);
-        preparedStmt.setString(2, cognom);
-        preparedStmt.setInt(3, edat);
-        preparedStmt.setString(4, nom);
-        preparedStmt.setInt(5, vehicle_Conductor);
-
-        preparedStmt.execute();
-    }
-
-    public void eliminarConductorBD(Conductor c) {
-//        Model.eliminar(algo, dataConductor);
-//        Model.eliminar(algo, dataOrdConductor);
-
         try {
-            Connection con = this.getConnection();
-            String query = " DELETE FROM conductor WHERE _1_id_conductor = ?";
 
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setInt(1, c.get1_id_Conductor());
-
-            preparedStmt.execute();
-
-            con.close();
-        } catch (SQLException ex) {
+            p.setUpdate_db("INSERT INTO conductor VALUES (" + id + ",'" + cognom + "'," + edat + ",'" + nom + "'," + vehicle_Conductor + "); ");
+        } catch (PropertyVetoException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void editarConductorBD(String nom, String cognom, int edat) {
+    public void eliminarConductorBD(Conductor c) {
         try {
-            String query = " UPDATE conductor SET _2_cognom_Conductor = ?, _3_edat_Conductor = ?, _4_nom_Conductor = ? WHERE _1_id_Conductor = ?";
+            p.setUpdate_db("DELETE FROM conductor WHERE _1_id_conductor = " + c.get1_id_Conductor() + ";");
+        } catch (PropertyVetoException ex) {
+            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
-            Connection con = this.getConnection();
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setString(1, cognom);
-            preparedStmt.setInt(2, edat);
-            preparedStmt.setString(3, nom);
-
-            preparedStmt.execute();
-
-        } catch (SQLException ex) {
+    public void editarConductorBD(String nom, String cognom, int edat, int id) {
+        try {
+            p.setUpdate_db("UPDATE conductor SET _2_cognom_Conductor = '" + cognom + "', _3_edat_Conductor = " + edat + ", _4_nom_Conductor = '" + nom + "' WHERE _1_id_Conductor = " + id + "");
+        } catch (PropertyVetoException ex) {
             Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
