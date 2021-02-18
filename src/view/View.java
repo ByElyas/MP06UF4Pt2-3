@@ -44,6 +44,7 @@ public class View extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        pr2i31 = new elsmeusbeans.Pr2i3();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jtaulavehicles = new javax.swing.JTable();
@@ -854,6 +855,7 @@ public class View extends javax.swing.JFrame {
     private javax.swing.JTable jtaulavehicles;
     private javax.swing.JComboBox<String> numVehicleConductorCombobox;
     private javax.swing.JLabel numVehicleConductorLabel;
+    private elsmeusbeans.Pr2i3 pr2i31;
     private javax.swing.JLabel vehicleLabel;
     // End of variables declaration//GEN-END:variables
 
